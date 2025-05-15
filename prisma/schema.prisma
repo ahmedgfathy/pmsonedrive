@@ -1,0 +1,78 @@
+// This is your Prisma schema file
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "foreignKeys"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String        @id @default(cuid())
+  employeeId    String       @unique
+  email         String       @unique
+  password      String
+  name          String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  files         File[]
+  folders       Folder[]
+  sharedFiles   SharedFile[]  @relation("UserSharedFiles")
+  sharedFolders SharedFolder[] @relation("UserSharedFolders")
+}
+
+model Folder {
+  id          String        @id @default(cuid())
+  name        String
+  path        String        // Full path including parent folders
+  ownerId     String
+  owner       User         @relation(fields: [ownerId], references: [id])
+  parentId    String?      // null for root folders
+  parent      Folder?      @relation("FolderHierarchy", fields: [parentId], references: [id])
+  subfolders  Folder[]     @relation("FolderHierarchy")
+  files       File[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  shares      SharedFolder[]
+}
+
+model File {
+  id          String      @id @default(cuid())
+  name        String
+  path        String      // Full path including folders
+  size        Int
+  type        String
+  ownerId     String
+  owner       User       @relation(fields: [ownerId], references: [id])
+  folderId    String?
+  folder      Folder?    @relation(fields: [folderId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  shares      SharedFile[]
+}
+
+model SharedFile {
+  id           String     @id @default(cuid())
+  fileId       String
+  file         File       @relation(fields: [fileId], references: [id])
+  sharedWithId String
+  sharedWith   User       @relation("UserSharedFiles", fields: [sharedWithId], references: [id])
+  permissions  String     // read, write
+  externalLink String?    // For external sharing
+  createdAt    DateTime   @default(now())
+  expiresAt    DateTime?
+}
+
+model SharedFolder {
+  id           String     @id @default(cuid())
+  folderId     String
+  folder       Folder     @relation(fields: [folderId], references: [id])
+  sharedWithId String
+  sharedWith   User       @relation("UserSharedFolders", fields: [sharedWithId], references: [id])
+  permissions  String     // read, write
+  externalLink String?    // For external sharing
+  createdAt    DateTime   @default(now())
+  expiresAt    DateTime?
+}

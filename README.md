@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PMS OneDrive - Modern File Management
 
-## Getting Started
+PMS OneDrive is a modern file management system built with Next.js, designed to provide a seamless and intuitive file upload and management experience.
 
-First, run the development server:
+![PMS OneDrive](public/screenshot.png)
 
+## ✨ Features
+
+- 📤 Single & multi-file uploads with drag-and-drop support
+- 📁 Organized file storage with consistent paths
+- 🔄 Real-time file list updates
+- 💾 Persistent storage across page refreshes and sessions
+- 🎯 Modern, responsive UI
+- ⚡ Fast file operations with transaction support
+- 🔒 Secure file handling
+
+## 🚀 Getting Started
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/pmsonedrive.git
+cd pmsonedrive
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up your environment variables:
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local` with your configuration.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-To learn more about Next.js, take a look at the following resources:
+## 🏗️ Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework**: [Next.js 14](https://nextjs.org)
+- **Database**: Prisma with SQLite
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **File Processing**: Node.js File System API
+- **State Management**: React Server Components + Client Hooks
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📝 Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/               # Next.js App Router pages and layouts
+├── components/        # Reusable UI components
+├── lib/              # Core utilities and services
+│   └── services/     # Business logic and data access
+└── types/            # TypeScript type definitions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔧 Configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Key configuration options are available in:
+- `.env.local` - Environment variables
+- `prisma/schema.prisma` - Database schema
+- `src/lib/config.ts` - Application settings
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Built with ❤️ using [Next.js](https://nextjs.org)
