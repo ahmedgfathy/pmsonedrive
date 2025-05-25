@@ -22,6 +22,7 @@ model User {
   sharedFiles   SharedFile[]  @relation("UserSharedFiles")
   sharedFolders SharedFolder[] @relation("UserSharedFolders")
 }
+composer --version
 
 model Folder {
   id          String        @id @default(cuid())
