@@ -34,6 +34,37 @@ export default function AdminDashboard() {
       });
   }, [router]);
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user and all their files?')) return;
+    const token = localStorage.getItem('token');
+    const res = await fetch(`/api/users/${userId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } else {
+      alert('Failed to delete user');
+    }
+  };
+
+  const handleDeleteFile = async (fileId: string) => {
+    if (!confirm('Delete this file?')) return;
+    const token = localStorage.getItem('token');
+    const res = await fetch(`/api/files/${fileId}?admin=1`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      setUsers((prev) => prev.map((u) => ({
+        ...u,
+        files: u.files.filter((f: any) => f.id !== fileId),
+      })));
+    } else {
+      alert('Failed to delete file');
+    }
+  };
+
   if (loading) return <div>Loading users...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
 
@@ -48,6 +79,7 @@ export default function AdminDashboard() {
             <th className="border px-4 py-2">Email</th>
             <th className="border px-4 py-2">Admin</th>
             <th className="border px-4 py-2">Files</th>
+            <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -63,12 +95,27 @@ export default function AdminDashboard() {
                     {user.files.map((file: any) => (
                       <li key={file.id}>
                         {file.name} ({(file.size / 1024).toFixed(1)} KB, {file.type})
+                        <button
+                          className="ml-2 text-red-600 hover:underline"
+                          onClick={() => handleDeleteFile(file.id)}
+                        >
+                          Delete
+                        </button>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <span>No files</span>
                 )}
+              </td>
+              <td className="border px-4 py-2">
+                <button
+                  className="text-red-600 hover:underline"
+                  onClick={() => handleDeleteUser(user.id)}
+                  disabled={user.isAdmin}
+                >
+                  Delete User
+                </button>
               </td>
             </tr>
           ))}

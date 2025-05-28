@@ -8,24 +8,32 @@ export async function DELETE(
   { params }: { params: { fileId: string } }
 ) {
   try {
-    // Get authorization header
-    const token = request.headers.get('authorization')?.split(' ')[1];
-    if (!token) {
+    // Check admin token and query param
+    const url = new URL(request.url);
+    const isAdmin = url.searchParams.get('admin') === '1';
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    // Verify token and get user
-    const tokenPayload = await verifyToken(token);
-    const userId = tokenPayload.userId;
-    if (!userId) {
+    const token = authHeader.replace('Bearer ', '');
+    const payload = await verifyToken(token);
+    if (!payload || !payload.userId) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+    const admin = await prisma.user.findUnique({
+      where: { id: payload.userId }
+    });
+    if (!admin || !admin.isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get file
     const file = await prisma.file.findFirst({
       where: {
-        id: params.fileId,
-        ownerId: userId
+        id: params.fileId
       }
     });
 
