@@ -208,11 +208,11 @@ export default function Dashboard() {
               <Image
                 src="/logo.svg"
                 alt="Company Logo"
-                width={40}
-                height={40}
+                width={60}
+                height={60}
                 className="mr-4"
               />
-              <span className="font-semibold text-xl text-blue-600">PMS OneDrive</span>
+              <span className="font-semibold text-xl text-blue-600">PMS-Drive</span>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">Welcome, {user.name}</span>

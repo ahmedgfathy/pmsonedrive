@@ -1,8 +1,8 @@
-# PMS OneDrive - Modern File Management
+# PMS-Drive - Modern File Management
 
-PMS OneDrive is a modern file management system built with Next.js, designed to provide a seamless and intuitive file upload and management experience.
+PMS-Drive is a modern file management system built with Next.js, designed to provide a seamless and intuitive file upload and management experience.
 
-![PMS OneDrive](public/screenshot.png)
+![PMS-Drive](public/screenshot.png)
 
 ## ✨ Features
 
