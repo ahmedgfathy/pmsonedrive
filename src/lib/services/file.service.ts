@@ -43,7 +43,7 @@ export class FileService {
       select: { size: true }
     });
 
-    const usedStorage = files.reduce((total, file) => total + (file.size || 0), 0);
+    const usedStorage = files.reduce((total: number, file: { size?: number }) => total + (file.size || 0), 0);
     return {
       used: usedStorage,
       total: this.maxStoragePerUser
@@ -116,7 +116,7 @@ export class FileService {
         await fs.writeFile(fullPath, buffer);
 
         // Create database record using a transaction to ensure consistency
-        const result = await this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx: any) => {
           const newFile = await tx.file.create({
             data: {
               name: sanitizedName,
@@ -191,7 +191,7 @@ export class FileService {
       await fs.mkdir(folderPath, { recursive: true });
 
       // Create database record using a transaction
-      const result = await this.prisma.$transaction(async (tx) => {
+      const result = await this.prisma.$transaction(async (tx: any) => {
         const newFolder = await tx.folder.create({
           data: {
             name,
@@ -253,13 +253,12 @@ export class FileService {
     });
 
     // Format dates and add human-readable timestamp
-    const formattedFiles = files.map(file => {
+    const formattedFiles = files.map((file: any) => {
       const createdAt = new Date(file.createdAt);
       const updatedAt = new Date(file.updatedAt);
-      
       return {
         ...file,
-        createdAt: createdAt.toISOString(),
+        uploadedAt: createdAt.toISOString(),
         updatedAt: updatedAt.toISOString(),
         formattedDate: this.formatDate(updatedAt),
         formattedSize: this.formatBytes(file.size)
@@ -300,7 +299,7 @@ export class FileService {
     });
 
     // Format dates for folders
-    const formattedFolders = folders.map(folder => {
+    const formattedFolders = folders.map((folder: any) => {
       const createdAt = new Date(folder.createdAt);
       const updatedAt = new Date(folder.updatedAt);
       

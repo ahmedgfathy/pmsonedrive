@@ -28,7 +28,7 @@ export class FileService {
       select: { size: true }
     });
 
-    const usedStorage = files.reduce((total, file) => total + file.size, 0);
+    const usedStorage = files.reduce((total: number, file: { size: number }) => total + file.size, 0);
     return {
       used: usedStorage,
       total: this.maxStoragePerUser
@@ -382,7 +382,8 @@ export class FileService {
             }
           },
           shares: true
-        }
+        },
+        orderBy: { updatedAt: 'desc' }
       }),
       this.prisma.folder.findMany({
         where: {
@@ -412,6 +413,13 @@ export class FileService {
       })
     ]);
 
-    return { files, folders };
+    // Format files to always include uploadedAt (createdAt) as ISO string
+    const formattedFiles = files.map((file: any) => ({
+      ...file,
+      uploadedAt: file.createdAt ? new Date(file.createdAt).toISOString() : null,
+      updatedAt: file.updatedAt ? new Date(file.updatedAt).toISOString() : null
+    }));
+
+    return { files: formattedFiles, folders };
   }
 }

@@ -15,7 +15,8 @@ export async function DELETE(
     }
 
     // Verify token and get user
-    const userId = await verifyToken(token);
+    const tokenPayload = await verifyToken(token);
+    const userId = tokenPayload.userId;
     if (!userId) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
@@ -24,7 +25,7 @@ export async function DELETE(
     const file = await prisma.file.findFirst({
       where: {
         id: params.fileId,
-        userId: userId
+        ownerId: userId
       }
     });
 

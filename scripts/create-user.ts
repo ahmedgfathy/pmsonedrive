@@ -9,7 +9,8 @@ async function main() {
     data: {
       email: 'test@example.com',
       password: '$2a$10$iVrIFGrwEJrLky6mGZZBpeGvGrqhEEpXQJVosWPbUgLvL8O862B6.', // hashed 'test123'
-      name: 'Test User'
+      name: 'Test User',
+      employeeId: 'EMP001'
     }
   })
   

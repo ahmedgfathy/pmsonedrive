@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { FileService } from '@/lib/services/file.service';
+import { FileService as FileServiceV2 } from '@/lib/services/file.service.v2';
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,7 +62,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const userId = tokenData.userId;
-    const fileService = new FileService();
+    const fileService = new FileServiceV2();
 
     // Get folder ID from URL
     const { searchParams } = new URL(request.url);

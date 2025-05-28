@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
-import { FileService } from '@/lib/services/file.service';
+import { FileService as FileServiceV2 } from '@/lib/services/file.service.v2';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = tokenData.userId;
-    const fileService = new FileService();
+    const fileService = new FileServiceV2();
 
     // Parse request body
     const { type, id, sharedWithId, permissions, expiresAt } = await request.json();
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     if (type === 'file') {
       share = await fileService.shareFile(
         id,
+        userId,
         sharedWithId,
         permissions,
         expiresAt ? new Date(expiresAt) : undefined
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
     } else if (type === 'folder') {
       share = await fileService.shareFolder(
         id,
+        userId,
         sharedWithId,
         permissions,
         expiresAt ? new Date(expiresAt) : undefined
