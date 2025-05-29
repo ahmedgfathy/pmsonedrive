@@ -1,6 +1,6 @@
-# PMS-Drive - Modern File Management
+# PMDrive - Modern File Management
 
-PMS-Drive is a modern file management system built with Next.js, designed to provide a seamless and intuitive file upload and management experience.
+PMDrive is a modern file management system built with Next.js, designed to provide a seamless and intuitive file upload and management experience.
 
 ![PMS-Drive](public/screenshot.png)
 

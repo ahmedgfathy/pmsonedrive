@@ -18,6 +18,7 @@ interface File {
   size: number;
   type: string;
   uploadedAt: string;
+  shared?: boolean;
 }
 
 interface UploadStatus {
@@ -26,10 +27,18 @@ interface UploadStatus {
   progress?: number;
 }
 
+interface ShareModalProps {
+  file: File;
+  onClose: () => void;
+  onShare: (email: string, permission: 'read' | 'write') => Promise<void>;
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [totalStorage] = useState(5 * 1024 * 1024 * 1024); // 5GB
@@ -141,6 +150,122 @@ export default function Dashboard() {
     router.push('/');
   };
 
+  const handleShare = async (fileId: string) => {
+    const fileToShare = files.find(f => f.id === fileId);
+    if (fileToShare) {
+      setSelectedFile(fileToShare);
+      setShowShareModal(true);
+    }
+  };
+
+  const handleShareSubmit = async (email: string, permission: 'read' | 'write') => {
+    if (!selectedFile || !user) return;
+
+    try {
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          type: 'file',
+          id: selectedFile.id,
+          sharedWithEmail: email,
+          permissions: permission,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to share file');
+      }
+
+      const { externalLink } = await response.json();
+
+      // Copy link to clipboard
+      await navigator.clipboard.writeText(window.location.origin + '/share/' + externalLink);
+
+      setUploadStatus({
+        type: 'success',
+        message: 'Share link copied to clipboard!',
+      });
+
+      // Update file status
+      setFiles(prev => prev.map(f => 
+        f.id === selectedFile.id ? { ...f, shared: true } : f
+      ));
+    } catch (error) {
+      setUploadStatus({
+        type: 'error',
+        message: 'Failed to share file. Please try again.',
+      });
+    }
+
+    setShowShareModal(false);
+    setSelectedFile(null);
+  };
+
+  // ShareModal Component
+  const ShareModal = ({ file, onClose, onShare }: ShareModalProps) => {
+    const [email, setEmail] = useState('');
+    const [permission, setPermission] = useState<'read' | 'write'>('read');
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      onShare(email, permission);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+          <h2 className="text-xl font-bold mb-4">Share "{file.name}"</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Share with (email)
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Permissions
+              </label>
+              <select
+                value={permission}
+                onChange={(e) => setPermission(e.target.value as 'read' | 'write')}
+                className="shadow border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              >
+                <option value="read">Read only</option>
+                <option value="write">Read and write</option>
+              </select>
+            </div>
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Share
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -212,7 +337,7 @@ export default function Dashboard() {
                 height={60}
                 className="mr-4"
               />
-              <span className="font-semibold text-xl text-blue-600">PMS-Drive</span>
+              <span className="font-semibold text-xl text-blue-600">PMDrive</span>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">Welcome, {user.name}</span>
@@ -357,6 +482,12 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-4">
+                        <button 
+                          onClick={() => handleShare(file.id)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <Image src="/globe.svg" alt="Share" width={20} height={20} />
+                        </button>
                         <button className="text-blue-600 hover:text-blue-800">
                           <Image src="/download.svg" alt="Download" width={20} height={20} />
                         </button>
@@ -376,6 +507,17 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {showShareModal && selectedFile && (
+        <ShareModal
+          file={selectedFile}
+          onClose={() => {
+            setShowShareModal(false);
+            setSelectedFile(null);
+          }}
+          onShare={handleShareSubmit}
+        />
+      )}
 
       {uploadStatus && <StatusMessage status={uploadStatus} />}
     </div>
