@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -63,7 +63,6 @@ export default function StorageManagement() {
           return;
         }
 
-        // If admin, fetch storage stats
         fetchStorageStats();
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -133,81 +132,66 @@ export default function StorageManagement() {
     }
   };
 
-  const handleQuotaInputChange = (value: string) => {
-    setQuotaError('');
-    setNewQuota(value);
-  };
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-      </div>
-    );
+    return <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+    </div>;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
-            </div>
+    return <div className="p-4">
+      <div className="bg-red-50 border-l-4 border-red-400 p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-red-700">{error}</p>
           </div>
         </div>
       </div>
-    );
+    </div>;
   }
 
+  const handleQuotaInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuotaError('');
+    setNewQuota(e.target.value);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Image src="/storage.svg" alt="Storage" width={32} height={32} className="mr-4" />
-            <h1 className="text-2xl font-bold text-gray-900">Storage Management</h1>
-          </div>
-          <button
-            onClick={() => router.push('/dashboard/admin')}
-            className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            Back to Admin Dashboard
-          </button>
-        </div>
+    <div className="p-4">
+      <div className="mb-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Storage Management</h1>
+        <button
+          onClick={() => router.push('/dashboard/admin')}
+          className="text-blue-600 hover:text-blue-700"
+        >
+          Back to Admin Dashboard
+        </button>
       </div>
 
-      {/* System Overview */}
       {systemStats && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">System Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-blue-800">Total Storage</h3>
-              <p className="mt-2 text-2xl font-semibold text-blue-900">{formatBytes(systemStats.totalStorage)}</p>
+        <div className="bg-white rounded shadow p-4 mb-4">
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="p-4 bg-blue-50 rounded">
+              <h3 className="font-medium mb-1">Total Storage</h3>
+              <p className="text-2xl">{formatBytes(systemStats.totalStorage)}</p>
             </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-green-800">Available Storage</h3>
-              <p className="mt-2 text-2xl font-semibold text-green-900">{formatBytes(systemStats.availableStorage)}</p>
+            <div className="p-4 bg-green-50 rounded">
+              <h3 className="font-medium mb-1">Available</h3>
+              <p className="text-2xl">{formatBytes(systemStats.availableStorage)}</p>
             </div>
-            <div className="bg-purple-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-purple-800">System Utilization</h3>
-              <p className="mt-2 text-2xl font-semibold text-purple-900">{systemStats.utilizationPercentage.toFixed(1)}%</p>
+            <div className="p-4 bg-purple-50 rounded">
+              <h3 className="font-medium mb-1">Usage</h3>
+              <p className="text-2xl">{systemStats.utilizationPercentage.toFixed(1)}%</p>
             </div>
           </div>
           <div className="mt-4">
-            <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-200 rounded-full">
               <div 
-                className={`h-full transition-all duration-300 ${
+                className={`h-full rounded-full ${
                   systemStats.utilizationPercentage > 90 
                     ? 'bg-red-500' 
                     : systemStats.utilizationPercentage > 75 
@@ -218,137 +202,113 @@ export default function StorageManagement() {
               />
             </div>
           </div>
-          <div className="mt-4 text-sm text-gray-600">
-            <div>Active Users (Last 30 Days): {systemStats.activeUsers} of {systemStats.totalUsers}</div>
-          </div>
+          <p className="mt-2 text-sm text-gray-600">
+            Active Users: {systemStats.activeUsers} of {systemStats.totalUsers}
+          </p>
         </div>
       )}
 
-      {/* User Storage Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">User Storage Usage</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usage</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quota</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Files</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {userStats.map((user) => (
-                <tr key={user.userId} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span className="text-xl text-gray-600">
-                          {(user.name || user.email).charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.name || user.employeeId}
-                        </div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                      </div>
+      <div className="bg-white rounded shadow overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usage</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quota</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Files</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {userStats.map((user) => (
+              <tr key={user.userId} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <div>
+                    <div className="font-medium">{user.name || user.employeeId}</div>
+                    <div className="text-sm text-gray-500">{user.email}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div>
+                    <div>{formatBytes(user.usedStorage)}</div>
+                    <div className="w-24 h-2 bg-gray-200 rounded-full">
+                      <div
+                        className={`h-full rounded-full ${
+                          user.usagePercentage > 90 
+                            ? 'bg-red-500' 
+                            : user.usagePercentage > 75 
+                            ? 'bg-yellow-500' 
+                            : 'bg-green-500'
+                        }`}
+                        style={{ width: `${user.usagePercentage}%` }}
+                      />
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-xs text-gray-500">{user.usagePercentage.toFixed(1)}%</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  {selectedUserId === user.userId ? (
                     <div>
-                      <div className="text-sm text-gray-900">{formatBytes(user.usedStorage)}</div>
-                      <div className="w-24 h-2 bg-gray-200 rounded-full mt-1">
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            user.usagePercentage > 90 
-                              ? 'bg-red-500' 
-                              : user.usagePercentage > 75 
-                              ? 'bg-yellow-500' 
-                              : 'bg-green-500'
-                          }`}
-                          style={{ width: `${user.usagePercentage}%` }}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min="1"
+                          max="1024"
+                          className="w-20 px-2 py-1 border rounded"
+                          value={newQuota}
+                          onChange={handleQuotaInputChange}
+                          placeholder="GB"
                         />
+                        <span className="text-sm text-gray-500">GB</span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">{user.usagePercentage.toFixed(1)}%</div>
+                      {quotaError && <p className="text-xs text-red-500 mt-1">{quotaError}</p>}
+                      <div className="mt-2 space-x-2">
+                        <button
+                          onClick={() => handleUpdateQuota(user.userId)}
+                          className="px-2 py-1 bg-green-500 text-white text-sm rounded"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedUserId(null);
+                            setNewQuota('');
+                            setQuotaError('');
+                          }}
+                          className="px-2 py-1 bg-gray-500 text-white text-sm rounded"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {selectedUserId === user.userId ? (
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="number"
-                            min="1"
-                            max="1024"
-                            className="w-20 px-2 py-1 border rounded-md text-sm"
-                            value={newQuota}
-                            onChange={(e) => handleQuotaInputChange(e.target.value)}
-                            placeholder="GB"
-                          />
-                          <span className="text-sm text-gray-500">GB</span>
-                        </div>
-                        <div className="mt-1 flex space-x-2">
-                          <button
-                            onClick={() => handleUpdateQuota(user.userId)}
-                            className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedUserId(null);
-                              setNewQuota('');
-                              setQuotaError('');
-                            }}
-                            className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                        {quotaError && (
-                          <div className="mt-1 text-xs text-red-500">{quotaError}</div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-900">{formatBytes(user.quota)}</div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.fileCount} files</div>
+                  ) : (
+                    <div>{formatBytes(user.quota)}</div>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  <div>
+                    <div>{user.fileCount} files</div>
                     {user.oldFiles > 0 && (
                       <div className="text-xs text-amber-600">
-                        {user.oldFiles} files older than 90 days
+                        {user.oldFiles} old files
                       </div>
                     )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {user.lastActive 
-                        ? new Date(user.lastActive).toLocaleDateString()
-                        : 'Never'
-                      }
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {selectedUserId !== user.userId && (
-                      <button
-                        onClick={() => setSelectedUserId(user.userId)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Edit Quota
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  {selectedUserId !== user.userId && (
+                    <button
+                                            onClick={() => setSelectedUserId(user.userId)}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      Edit Quota
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
