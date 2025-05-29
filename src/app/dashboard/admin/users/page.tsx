@@ -101,7 +101,7 @@ export default function AdminUsersPage() {
 
     try {
       const quota = parseInt(newQuota) * 1024 * 1024 * 1024; // Convert GB to bytes
-      const response = await fetch(`/api/admin/users/${userId}/quota`, {
+      const response = await fetch(`/api/users/${userId}/quota`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

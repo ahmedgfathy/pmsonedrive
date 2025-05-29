@@ -45,7 +45,7 @@ export default function UserActivityPage({ params }: { params: { userId: string 
         return;
       }
 
-      const response = await fetch(`/api/admin/users/${params.userId}/activity`, {
+      const response = await fetch(`/api/users/${params.userId}/activity`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
