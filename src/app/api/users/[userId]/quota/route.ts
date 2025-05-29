@@ -34,6 +34,9 @@ export async function POST(
       where: { id: params.userId },
       data: {
         storageQuota: quota
+      },
+      include: {
+        files: true
       }
     });
 

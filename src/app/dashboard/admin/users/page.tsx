@@ -103,10 +103,22 @@ export default function AdminUsersPage() {
   };
 
   const handleQuotaUpdate = async (userId: string) => {
-    if (!newQuota) return;
+    if (!newQuota) {
+      setError("Please enter a quota value");
+      return;
+    }
 
+    setError(""); // Clear any previous error
+    
     try {
-      const quota = parseInt(newQuota) * 1024 * 1024 * 1024; // Convert GB to bytes
+      const quotaNumber = parseFloat(newQuota);
+      if (isNaN(quotaNumber) || quotaNumber <= 0) {
+        setError("Please enter a valid positive number");
+        return;
+      }
+
+      const quota = Math.round(quotaNumber * 1024 * 1024 * 1024); // Convert GB to bytes
+      console.log('Sending quota update:', { quota });
       const response = await fetch(`/api/users/${userId}/quota`, {
         method: 'POST',
         headers: {
@@ -116,7 +128,8 @@ export default function AdminUsersPage() {
         body: JSON.stringify({ quota }),
       });
 
-      if (!response.ok) throw new Error('Failed to update quota');
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to update quota');
       
       setShowQuotaModal(false);
       setNewQuota("");
@@ -314,7 +327,7 @@ export default function AdminUsersPage() {
       {showQuotaModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Update Storage Quota for {selectedUser.name}</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Update Storage Quota for {selectedUser.name}</h2>
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Storage Quota (GB)
