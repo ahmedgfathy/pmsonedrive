@@ -1,9 +1,18 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+// Include all Prisma client extensions and model types
+export type ExtendedPrismaClient = PrismaClient
+
+// Add Prisma client to the global type
+declare global {
+  var prisma: ExtendedPrismaClient | undefined
 }
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+// Create new client with extensions if it doesn't exist
+const prismaInstance = global.prisma || new PrismaClient() as ExtendedPrismaClient
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prismaInstance
+}
+
+export const prisma = prismaInstance

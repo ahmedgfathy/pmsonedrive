@@ -23,6 +23,7 @@ model User {
   folders       Folder[]
   sharedFiles   SharedFile[]  @relation("UserSharedFiles")
   sharedFolders SharedFolder[] @relation("UserSharedFolders")
+  activities    Activity[]
 }
 
 model Folder {
@@ -41,18 +42,19 @@ model Folder {
 }
 
 model File {
-  id          String      @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
-  path        String      // Full path including folders
+  path        String        // Full path including folders
   size        Int
   type        String
   ownerId     String
-  owner       User       @relation(fields: [ownerId], references: [id])
+  owner       User         @relation(fields: [ownerId], references: [id])
   folderId    String?
-  folder      Folder?    @relation(fields: [folderId], references: [id])
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  folder      Folder?      @relation(fields: [folderId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   shares      SharedFile[]
+  activities  Activity[]
 }
 
 model SharedFile {
@@ -77,4 +79,19 @@ model SharedFolder {
   externalLink String?    // For external sharing
   createdAt    DateTime   @default(now())
   expiresAt    DateTime?
+}
+
+model Activity {
+  id          String     @id @default(cuid())
+  fileId      String
+  file        File       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  action      String     // upload, download, share, delete
+  ipAddress   String
+  details     String?    // Additional info, like share target
+  timestamp   DateTime   @default(now())
+
+  @@index([userId])
+  @@index([fileId])
 }

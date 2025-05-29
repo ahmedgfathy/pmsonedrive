@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { unlink } from 'fs/promises';
+import { getClientIp } from '@/lib/utils/clientIp';
+import { ActivityService } from '@/lib/services/activity.service';
 
 export async function DELETE(
   request: NextRequest,
@@ -14,15 +16,18 @@ export async function DELETE(
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+    
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    
     const token = authHeader.replace('Bearer ', '');
     const payload = await verifyToken(token);
     if (!payload || !payload.userId) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
+
     const admin = await prisma.user.findUnique({
       where: { id: payload.userId }
     });
@@ -30,11 +35,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const ipAddress = getClientIp(request);
+    const activityService = new ActivityService();
+
     // Get file
     const file = await prisma.file.findFirst({
-      where: {
-        id: params.fileId
-      }
+      where: { id: params.fileId }
     });
 
     if (!file) {
@@ -44,14 +50,21 @@ export async function DELETE(
       );
     }
 
+    // Log the delete activity before actually deleting the file
+    await activityService.logFileActivity(
+      file.id,
+      payload.userId,
+      'delete',
+      ipAddress,
+      `File deleted by admin ${admin.name}`
+    );
+
     // Delete file from disk
     await unlink(file.path);
 
     // Delete file from database
     await prisma.file.delete({
-      where: {
-        id: file.id
-      }
+      where: { id: file.id }
     });
 
     return NextResponse.json({

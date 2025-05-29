@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { FileService as FileServiceV2 } from '@/lib/services/file.service.v2';
+import { ActivityService } from '@/lib/services/activity.service';
+import { getClientIp } from '@/lib/utils/clientIp';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +22,8 @@ export async function POST(request: NextRequest) {
 
     const userId = tokenData.userId;
     const fileService = new FileServiceV2();
+    const activityService = new ActivityService();
+    const ipAddress = getClientIp(request);
 
     // Parse request body
     const { type, id, sharedWithId, permissions, expiresAt } = await request.json();
@@ -39,6 +43,15 @@ export async function POST(request: NextRequest) {
         sharedWithId,
         permissions,
         expiresAt ? new Date(expiresAt) : undefined
+      );
+
+      // Log the share activity
+      await activityService.logFileActivity(
+        id,
+        userId,
+        'share',
+        ipAddress,
+        `Shared with user ${sharedWithId} with ${permissions} permissions`
       );
     } else if (type === 'folder') {
       share = await fileService.shareFolder(

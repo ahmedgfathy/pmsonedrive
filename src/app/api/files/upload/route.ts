@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { FileService } from '@/lib/services/file.service';
+import { ActivityService } from '@/lib/services/activity.service';
+import { getClientIp } from '@/lib/utils/clientIp';
 
 // Add types for multipart form data
 type FileData = {
@@ -29,6 +31,8 @@ export async function POST(request: NextRequest) {
 
     const userId = tokenData.userId;
     const fileService = new FileService();
+    const activityService = new ActivityService();
+    const ipAddress = getClientIp(request);
 
     // Parse form data
     const formData = await request.formData();
@@ -64,6 +68,15 @@ export async function POST(request: NextRequest) {
           type: file.type,
           arrayBuffer: () => file.arrayBuffer()
         }, userId, folderId);
+        
+        // Log the file upload activity
+        await activityService.logFileActivity(
+          fileRecord.id,
+          userId,
+          'upload',
+          ipAddress,
+          `File uploaded to ${folderId ? 'folder ' + folderId : 'root directory'}`
+        );
         
         uploadedFiles.push(fileRecord);
       } catch (error) {

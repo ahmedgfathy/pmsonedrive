@@ -341,4 +341,30 @@ export class FileService {
       return 'Just now';
     }
   }
+
+  async getFileById(fileId: string) {
+    return await this.prisma.file.findUnique({
+      where: { id: fileId }
+    });
+  }
+
+  async checkFileAccess(fileId: string, userId: string): Promise<boolean> {
+    const file = await this.prisma.file.findFirst({
+      where: {
+        id: fileId,
+        OR: [
+          { ownerId: userId },
+          {
+            shares: {
+              some: {
+                sharedWithId: userId,
+                AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] }]
+              }
+            }
+          }
+        ]
+      }
+    });
+    return !!file;
+  }
 }

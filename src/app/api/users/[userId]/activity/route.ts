@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
+import { ActivityService } from '@/lib/services/activity.service';
+
+interface FileActivity {
+  id: string;
+  fileId: string;
+  file: {
+    name: string;
+    size: number;
+  };
+  action: string;
+  ipAddress: string;
+  details?: string | null;
+  timestamp: Date;
+}
 
 export async function GET(
   request: NextRequest,
@@ -34,27 +48,29 @@ export async function GET(
     });
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-    // Fetch file activities (dummy example, replace with your own logic)
-    // You may want to join with a file_activity or audit table if you have one
-    const files = await prisma.file.findMany({
-      where: { ownerId: params.userId },
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-        // Add more fields as needed
-      },
-    });
-    const fileActivities = files.map(f => ({
-      id: f.id,
-      fileName: f.name,
-      action: 'upload',
-      timestamp: f.createdAt,
-      ipAddress: 'N/A', // Replace with real IP if tracked
+    // Initialize activity service
+    const activityService = new ActivityService();
+    
+    // Fetch file activities
+    const activities = await activityService.getUserActivities(params.userId);
+    const fileActivities = activities.map((a: FileActivity) => ({
+      id: a.id,
+      fileName: a.file.name,
+      action: a.action,
+      timestamp: a.timestamp,
+      ipAddress: a.ipAddress,
+      details: a.details,
     }));
 
-    // Fetch deleted files (dummy example, replace with your own logic)
-    const deletedFiles: any[] = [];
+    // Fetch deleted files - now part of activities where action is 'delete'
+    const deletedFiles = activities
+      .filter((a: FileActivity) => a.action === 'delete')
+      .map((a: FileActivity) => ({
+        id: a.fileId,
+        fileName: a.file.name,
+        size: a.file.size,
+        deletedAt: a.timestamp,
+      }));
 
     return NextResponse.json({
       userId: user.id,
