@@ -39,6 +39,7 @@ export default function AdminUsersPage() {
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [newQuota, setNewQuota] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -89,8 +90,13 @@ export default function AdminUsersPage() {
       
       setShowPasswordModal(false);
       setNewPassword("");
-      // Refresh user list
+      setSuccessMessage("Password updated successfully");
       fetchUsers();
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error updating password');
     }
@@ -114,8 +120,13 @@ export default function AdminUsersPage() {
       
       setShowQuotaModal(false);
       setNewQuota("");
-      // Refresh user list
+      setSuccessMessage("Storage quota updated successfully");
       fetchUsers();
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error updating quota');
     }
@@ -128,97 +139,154 @@ export default function AdminUsersPage() {
     return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  if (loading) return <div className="p-4">Loading users...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <span className="ml-2 text-gray-600">Loading users...</span>
+    </div>
+  );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">User Management</h1>
-      
-      <div className="bg-white shadow rounded-lg">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Storage Used</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quota</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Files</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                        <div className="text-xs text-gray-400">ID: {user.employeeId}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {formatBytes(user.files.reduce((acc, file) => acc + file.size, 0))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {user.storageQuota ? formatBytes(user.storageQuota) : 'Default'}
-                      <button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setShowQuotaModal(true);
-                        }}
-                        className="ml-2 text-blue-600 hover:text-blue-800"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.files.length} files</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setShowPasswordModal(true);
-                      }}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      Reset Password
-                    </button>
-                    <button
-                      onClick={() => router.push(`/dashboard/admin/users/${user.id}/activity`)}
-                      className="text-green-600 hover:text-green-900"
-                    >
-                      View Activity
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="min-h-screen bg-gray-100">
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Image
+                src="/logo.svg"
+                alt="Company Logo"
+                width={60}
+                height={60}
+                className="mr-4"
+              />
+              <span className="font-semibold text-xl text-blue-600">PMDrive Admin</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          </div>
+
+          {error && (
+            <div className="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+              {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="p-4 mb-6 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+              {successMessage}
+            </div>
+          )}
+
+          <div className="bg-white shadow overflow-hidden rounded-lg">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Storage Used</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quota</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Files</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <span className="text-xl text-gray-600">{user.name.charAt(0)}</span>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-xs text-gray-400">ID: {user.employeeId}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {formatBytes(user.files.reduce((acc, file) => acc + file.size, 0))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 flex items-center">
+                          {user.storageQuota ? formatBytes(user.storageQuota) : 'Default'}
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowQuotaModal(true);
+                            }}
+                            className="ml-2 text-blue-600 hover:text-blue-800"
+                          >
+                            <Image src="/edit.svg" alt="Edit" width={16} height={16} />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.files.length} files</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-4">
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowPasswordModal(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 flex items-center"
+                          >
+                            <Image src="/password.svg" alt="Reset" width={16} height={16} className="mr-1" />
+                            Reset Password
+                          </button>
+                          <button
+                            onClick={() => router.push(`/dashboard/admin/users/${user.id}/activity`)}
+                            className="text-green-600 hover:text-green-900 flex items-center"
+                          >
+                            <Image src="/activity.svg" alt="Activity" width={16} height={16} className="mr-1" />
+                            View Activity
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
 
       {/* Password Reset Modal */}
       {showPasswordModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Reset Password for {selectedUser.name}</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 New Password
               </label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                placeholder="Enter new password"
               />
             </div>
             <div className="flex justify-end space-x-4">
@@ -227,13 +295,13 @@ export default function AdminUsersPage() {
                   setShowPasswordModal(false);
                   setNewPassword("");
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handlePasswordChange(selectedUser.id)}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Update Password
               </button>
@@ -247,17 +315,19 @@ export default function AdminUsersPage() {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Update Storage Quota for {selectedUser.name}</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Storage Quota (GB)
               </label>
               <input
                 type="number"
                 value={newQuota}
                 onChange={(e) => setNewQuota(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                placeholder="Enter quota in GB"
                 min="1"
               />
+              <p className="mt-2 text-sm text-gray-500">Current usage: {formatBytes(selectedUser.files.reduce((acc, file) => acc + file.size, 0))}</p>
             </div>
             <div className="flex justify-end space-x-4">
               <button
@@ -265,13 +335,13 @@ export default function AdminUsersPage() {
                   setShowQuotaModal(false);
                   setNewQuota("");
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleQuotaUpdate(selectedUser.id)}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Update Quota
               </button>
