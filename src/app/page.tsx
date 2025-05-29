@@ -130,7 +130,28 @@ export default function Home() {
             Register here
           </Link>
         </p>
+
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Need help?{" "}
+          <a href="mailto:ahmed.fathy@pms.eg" className="font-medium text-blue-600 hover:text-blue-500">
+            Ask for help
+          </a>
+        </p>
       </div>
+
+      {/* Copyright Footer */}
+      <footer className="mt-8 text-center text-sm text-gray-500">
+        <p>copyright © PMS company {new Date().getFullYear()}</p>
+        <p className="mt-1">
+          Developed by{" "}
+          <a 
+            href="mailto:ahmed.fathy@pms.eg"
+            className="text-blue-600 hover:text-blue-500"
+          >
+            Ahmed Fathy
+          </a>
+        </p>
+      </footer>
     </main>
   );
 }

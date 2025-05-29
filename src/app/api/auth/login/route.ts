@@ -17,9 +17,17 @@ export async function POST(req: Request) {
 
     const { employeeId, password } = body;
 
-    // Find user
+    // Find user with admin status
     const user = await prisma.user.findUnique({
-      where: { employeeId }
+      where: { employeeId },
+      select: {
+        id: true,
+        employeeId: true,
+        email: true,
+        name: true,
+        password: true,
+        isAdmin: true
+      }
     });
     
     console.log('User lookup result:', user ? 'User found' : 'User not found');
@@ -42,20 +50,22 @@ export async function POST(req: Request) {
       );
     }
 
-    // Generate JWT token
+    // Generate JWT token with admin status
     const token = generateToken({
       userId: user.id,
-      employeeId: user.employeeId
+      employeeId: user.employeeId,
+      isAdmin: user.isAdmin
     });
 
-    // Return user data and token
+    // Return user data including admin status and token
     return NextResponse.json({
       success: true,
       user: {
         id: user.id,
         employeeId: user.employeeId,
         email: user.email,
-        name: user.name
+        name: user.name,
+        isAdmin: user.isAdmin
       },
       token
     });

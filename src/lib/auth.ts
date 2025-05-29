@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 interface TokenPayload {
   userId: string;
   employeeId: string;
+  isAdmin: boolean;
 }
 
 export function generateToken(payload: TokenPayload): string {

@@ -160,7 +160,7 @@ export default function AdminUsersPage() {
                 height={60}
                 className="mr-4"
               />
-              <span className="font-semibold text-xl text-blue-600">PMDrive Admin</span>
+              <span className="text-3xl font-bold text-gray-900">User Management</span>
             </div>
             <div className="flex items-center space-x-4">
               <button
